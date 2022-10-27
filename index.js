@@ -1,52 +1,57 @@
 require('dotenv').config();
-const WebSocketServer = require('websocket').server;
-
+// const WebSocketServer = require('websocket').server;
 
 const app = require('./src/app');
+const wss = require('./src/app-ws');
 
-const server = app.listen(process.env.PORT || 3000, () => {
-    console.log('Express is running on port');
+
+const PORT = process.env.PORT;
+
+const server = app.listen(PORT || 3000, () => {
+    console.log('Express is running on port ' + PORT);
 })
 
-const wss = new WebSocketServer({
-    httpServer: server,
-    autoAcceptConnections: false,
-});
+wss(server);
 
-let nextIdConn = 1;
-const connectionsArray = [];
+// const wss = new WebSocketServer({
+//     httpServer: server,
+//     autoAcceptConnections: false,
+// });
 
-const allowClient = () => {
-    // logica para liberar a conexao ou não
-    return true;
-}
+// let nextIdConn = 1;
+// const connectionsArray = [];
 
-wss.on('request', (request) => {
-    console.log(request);
-    console.log(request.origin);
-    if (!allowClient()) {
-        request.reject(401);
-        return;
-    }
+// const allowClient = () => {
+//     // logica para liberar a conexao ou não
+//     return true;
+// }
 
-    // ao aceitar a conexão é devolvido o objeto connection
-    let connection = request.accept();
+// wss.on('request', (request) => {
+//     console.log(request);
+//     console.log(request.origin);
+//     if (!allowClient()) {
+//         request.reject(401);
+//         return;
+//     }
 
-    // adiciona a conexão ao vetor de conexões ativas
-    connectionsArray.push(connection);
+//     // ao aceitar a conexão é devolvido o objeto connection
+//     let connection = request.accept();
 
-    // define um id para a conexão e incrementa para a proxima
-    connection.ID = nextIdConn;
-    nextIdConn++;
+//     // adiciona a conexão ao vetor de conexões ativas
+//     connectionsArray.push(connection);
 
-    var message = {
-        type: "id",
-        id: connection.ID,
-    }
-    // envia ao cliente o id da sua conexao com o servidor
-    connection.sendUTF(JSON.stringify(message));
+//     // define um id para a conexão e incrementa para a proxima
+//     connection.ID = nextIdConn;
+//     nextIdConn++;
 
-    connection.on('message', (data) => {
-        //tratar as mensagens vinda do cliente
-    })
-});
+//     var message = {
+//         type: "id",
+//         id: connection.ID,
+//     }
+//     // envia ao cliente o id da sua conexao com o servidor
+//     connection.sendUTF(JSON.stringify(message));
+
+//     connection.on('message', (data) => {
+//         //tratar as mensagens vinda do cliente
+//     })
+// });

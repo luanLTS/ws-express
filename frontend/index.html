@@ -8,12 +8,60 @@
     <title>Teste WS</title>
 </head>
 
-<body>
+<style>
+    html {
+        height: 100%;
+    }
 
+    body {
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        margin: 0;
+        padding: 0;
+    }
+</style>
+
+<body>
+    <h1>Meu primeiro chat</h1>
+    <label>
+        Usuário: <br />
+        <input type="text" name="username" id="username" />
+    </label> <br />
+    <button type="button" onclick="setUsername()">Gravar usuário</button>
+    <br /><br /><br />
+    <label>
+        Mensagem: <br />
+        <input type="text" name="message" id="message" />
+    </label> <br />
+    <button type="button" id="username" onclick="enviarMensagem()">Enviar mensagem</button>
+    <ul id="mensagens">
+
+    </ul>
 </body>
 
 <script>
     const ws = new WebSocket('ws://localhost:3000');
+
+    let clientID = null;
+    let username = '';
+    const setUsername = () => {
+        username = document.getElementById('username').value;
+    }
+
+    const enviarMensagem = () => {
+        msg = document.getElementById('message').value;
+        console.log(msg);
+
+        data = {
+            name: username,
+            text: msg,
+            type: 'message'
+        }
+        ws.send(JSON.stringify(data));
+    }
 
     ws.onopen = () => {
         console.log("Connected on websocket server");
@@ -21,6 +69,22 @@
 
     ws.onmessage = (messageEvent) => {
         console.log(JSON.parse(messageEvent.data));
+        const data = JSON.parse(messageEvent.data);
+
+        switch (data.type) {
+            case 'id': {
+                clientID = data.id;
+                console.log(`Este é seu id de conexão ${clientID}`);
+                break;
+            }
+            case 'message': {
+                console.log(data);
+                document.getElementById('mensagens').innerHTML += `
+                <li>${data.name}: ${data.text}</li>
+                `
+            }
+
+        }
     }
 </script>
 
